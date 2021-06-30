@@ -118,7 +118,7 @@ class HandwritingSelf {
             }
         })
 
-      //绘制this.line线条
+        //绘制this.line线条
         let points;
         if (isUp)
             points = this.line.points;
@@ -159,7 +159,7 @@ class HandwritingSelf {
         let changeWidthCount = count + insertCount;
         if (isUp)
             this.line.changeWidthCount = changeWidthCount;
-      
+
         //制造椭圆头
         this.ctx.fillStyle = "rgba(255,20,87,1)"
         this.ctx.beginPath();
@@ -231,36 +231,6 @@ class HandwritingSelf {
         }
     }
 
-    addOtherPoint(p1, p2, w1, w2) {
-
-        let otherPoints = new Array();
-        let dis = this.z_distance(p1, p2);
-        if (dis >= 25) {
-            otherPoints.push(p1);
-            let insertPCount = Math.floor(dis / 20);
-            for (let j = 0; j < insertPCount; j++) {
-                let insertP = new Point(p1.x + (j + 1) / (insertPCount + 1) * (p2.x - p1.x), p1.y + (j + 1) / (insertPCount + 1) * (p2.y - p1.y))
-                insertP.isAdd = true;
-                otherPoints.push(insertP);
-            }
-            otherPoints.push(p2);
-        }
-        let count = otherPoints.length;
-        if (count > 0) {
-            console.log("addOtherPoint")
-            debugger
-            let diffW = (w2 - w1) / (count - 1);
-            for (let i = 1; i < count; i++) {
-                let w = w1 + diffW * i;
-                this.ctx.beginPath();
-                this.ctx.lineWidth = w;
-                this.ctx.moveTo(otherPoints[i - 1].x, otherPoints[i - 1].y);
-                this.ctx.lineTo(otherPoints[i].x, otherPoints[i].y)
-                this.ctx.stroke();
-            }
-        }
-        return otherPoints
-    }
     pushPoint(p) {
         //排除重复点
         if (this.line.points.length >= 1 && this.line.points[this.line.points.length - 1].x == p.x && this.line.points[this.line.points.length - 1].y == p.y)
@@ -285,40 +255,7 @@ class HandwritingSelf {
             second = new Point(middle.x + (k * diff2.x), middle.y + (k * diff2.y))
         return { first: first, second: second }
     }
-    // W_current = 
-    // 　　W_previous + min( abs(k*s - W_previous), distance * K_width_unit_change) (k * s-W_previous) >= 0
-    // 　　W_previous - min( abs(k*s - W_previous), distance * K_width_unit_change) (k * s-W_previous) < 0
-    // 　　W_current 　　　　  当前线段的宽度
-    // 　　W_previous　　　　与当前线条相邻的前一条线段的宽度
-    // 　　distance 　　	　　    当前线条的长度
-    // 　　w_k 　　　　　　　	设定的一个固定阈值,表示:单位距离内, 笔迹的线条宽度可以变化的最大量. 
-    // 　　distance * w_k 　　  即为当前线段的长度内, 笔宽可以相对于前一条线段笔宽的基础上, 最多能够变宽或者可以变窄多少.
-    z_linewidth(b, e, bwidth, step) {
 
-        if (e.time == b.time)
-            return bwidth;
-
-        let max_speed = 2.0;
-        let d = this.z_distance(b, e);
-        let s = d / (e.time - b.time);//计算速度
-        console.log("s", e.time - b.time, s)
-        s = s > max_speed ? max_speed : s;
-
-        // let w = (max_speed - s) / max_speed;
-        let w = 0.5 / s;
-
-        let max_dif = d * step;
-        console.log(w, bwidth, max_dif)
-        if (w < 0.05) w = 0.05;
-        if (Math.abs(w - bwidth) > max_dif) {
-            if (w > bwidth)
-                w = bwidth + max_dif;
-            else
-                w = bwidth - max_dif;
-        }
-        // printf("d:%.4f, time_diff:%lld, speed:%.4f, width:%.4f\n", d, e.t-b.t, s, w);
-        return w;
-    }
     z_distance(b, e) {
         return Math.sqrt(Math.pow(e.x - b.x, 2) + Math.pow(e.y - b.y, 2));
     }
@@ -373,25 +310,25 @@ class HandwritingSelf {
 
 
 //以下代码为鼠标移动事件部分
-        let handwriting = new HandwritingSelf(document.getElementById("canvasId"))
-        // document.ontouchstart = document.onmousedown
-        document.onpointerdown = function (e) {
-            if (e.type == "touchstart")
-                handwriting.down(e.touches[0].pageX, e.touches[0].pageY);
-            else
-                handwriting.down(e.x, e.y);
-        }
-        // document.ontouchmove = document.onmousemove
-        document.onpointermove = function (e) {
-            if (e.type == "touchmove")
-                handwriting.move(e.touches[0].pageX, e.touches[0].pageY);
-            else
-                handwriting.move(e.x, e.y);
-        }
-        // document.ontouchend = document.onmouseup
-        document.onpointerup = function (e) {
-            if (e.type == "touchend")
-                handwriting.up(e.touches[0].pageX, e.touches[0].pageY);
-            else
-                handwriting.up(e.x, e.y);
-        }
+let handwriting = new HandwritingSelf(document.getElementById("canvasId"))
+// document.ontouchstart = document.onmousedown
+document.onpointerdown = function (e) {
+    if (e.type == "touchstart")
+        handwriting.down(e.touches[0].pageX, e.touches[0].pageY);
+    else
+        handwriting.down(e.x, e.y);
+}
+// document.ontouchmove = document.onmousemove
+document.onpointermove = function (e) {
+    if (e.type == "touchmove")
+        handwriting.move(e.touches[0].pageX, e.touches[0].pageY);
+    else
+        handwriting.move(e.x, e.y);
+}
+// document.ontouchend = document.onmouseup
+document.onpointerup = function (e) {
+    if (e.type == "touchend")
+        handwriting.up(e.touches[0].pageX, e.touches[0].pageY);
+    else
+        handwriting.up(e.x, e.y);
+}
