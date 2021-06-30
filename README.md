@@ -1,3 +1,4 @@
 # penlineHandWriting
 hand writing with canvas
-用canvas实现的手写笔迹小姑
+
+canvas实现带笔锋手写笔迹
